@@ -1,15 +1,24 @@
+import json
+import re
+from datetime import datetime
+from typing import Optional, Union
+
 class SupplierBase:
     """
     Базовый класс для поставщиков
     """
     
     def __init__(self, supplier_id: int, name: str, phone: str):
-        # ИНКАПСУЛЯЦИЯ - защищенные поля
-        self._supplier_id = supplier_id
-        self._name = name
-        self._phone = phone
+        self._supplier_id = SupplierBase.validate_id(supplier_id)
+        self._name = SupplierBase.validate_name(name)
+        self._phone = SupplierBase.validate_phone(phone)
     
-    # СВОЙСТВА для доступа к полям
+    def _init_base(self, supplier_id: int, name: str, phone: str):
+        """Инициализация базовых полей"""
+        self._supplier_id = SupplierBase.validate_id(supplier_id)
+        self._name = SupplierBase.validate_name(name)
+        self._phone = SupplierBase.validate_phone(phone)
+    
     @property
     def supplier_id(self) -> int:
         return self._supplier_id
@@ -32,8 +41,8 @@ class SupplierBase:
     
     def __str__(self) -> str:
         return self.to_short_string()
-
-            @staticmethod
+    
+    @staticmethod
     def validate_non_empty_string(value: str, field_name: str = "Поле") -> str:
         """Валидация непустой строки"""
         if not isinstance(value, str) or not value.strip():
@@ -77,6 +86,20 @@ class SupplierBase:
         if len(value) < 2 or len(value) > 100:
             raise ValueError("Название должно быть от 2 до 100 символов")
         return value
+
+
+class SupplierShort(SupplierBase):
+    """
+    Краткая версия поставщика
+    """
+    
+    def __init__(self, supplier_id: int, name: str, phone: str):
+        super().__init__(supplier_id, name, phone)
+    
+    def __str__(self) -> str:
+        return f"SupplierShort {self.supplier_id}: {self.name} ({self.phone})"
+
+
 class Supplier(SupplierBase):
     """
     Полная версия поставщика
@@ -104,12 +127,6 @@ class Supplier(SupplierBase):
         
         else:
             raise ValueError("Некорректный формат аргументов конструктора Supplier")
-    
-    def _init_base(self, supplier_id: int, name: str, phone: str):
-        """Инициализация базовых полей"""
-        self._supplier_id = SupplierBase.validate_id(supplier_id)
-        self._name = SupplierBase.validate_name(name)
-        self._phone = SupplierBase.validate_phone(phone)
     
     def _init_from_params(self, supplier_id: int, name: str, phone: str, address: str):
         """Инициализация из параметров"""
@@ -146,6 +163,10 @@ class Supplier(SupplierBase):
         except json.JSONDecodeError as e:
             raise ValueError(f"Ошибка парсинга JSON: {e}")
     
+    @property
+    def address(self) -> str:
+        return self._address
+    
     @staticmethod
     def validate_address(address: str) -> str:
         """Валидация адреса с проверкой длины"""
@@ -154,41 +175,14 @@ class Supplier(SupplierBase):
             raise ValueError("Адрес должен быть от 5 до 200 символов")
         return value
     
-    @property
-    def address(self) -> str:
-        return self._address
-    
     def to_full_string(self) -> str:
         """Полное строковое представление"""
         return (f"Supplier {self.supplier_id}: {self.name}, "
                 f"Телефон: {self.phone}, Адрес: {self.address}")
-
-     def to_full_string(self) -> str:
-        """Полное строковое представление"""
-        return (f"Supplier {self.supplier_id}: {self.name}, "
-                f"Телефон: {self.phone}, Адрес: {self.address}")
     
-    def __str__(self) -> str:
-        return self.to_full_string()
-    
-    def __str__(self) -> str:
-        return self.to_full_string()
-
-    def __eq__(self, other) -> bool:
-        """Сравнение объектов"""
-        return isinstance(other, SupplierBase) and self.supplier_id == other.supplier_id
-
     def to_short_object(self) -> SupplierShort:
         """Создание краткой версии объекта"""
         return SupplierShort(self.supplier_id, self.name, self.phone)
-        
-class SupplierShort(SupplierBase):
-    """
-    Краткая версия поставщика
-    """
-    
-    def __init__(self, supplier_id: int, name: str, phone: str):
-        super().__init__(supplier_id, name, phone)
     
     def __str__(self) -> str:
-        return f"SupplierShort {self.supplier_id}: {self.name} ({self.phone})"
+        return self.to_full_string()
