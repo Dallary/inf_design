@@ -177,6 +177,10 @@ class Supplier(SupplierBase):
     def __eq__(self, other) -> bool:
         """Сравнение объектов"""
         return isinstance(other, SupplierBase) and self.supplier_id == other.supplier_id
+
+    def to_short_object(self) -> SupplierShort:
+        """Создание краткой версии объекта"""
+        return SupplierShort(self.supplier_id, self.name, self.phone)
         
 class SupplierShort(SupplierBase):
     """
