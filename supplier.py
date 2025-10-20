@@ -162,6 +162,18 @@ class Supplier(SupplierBase):
         """Полное строковое представление"""
         return (f"Supplier {self.supplier_id}: {self.name}, "
                 f"Телефон: {self.phone}, Адрес: {self.address}")
+
+     def to_full_string(self) -> str:
+        """Полное строковое представление"""
+        return (f"Supplier {self.supplier_id}: {self.name}, "
+                f"Телефон: {self.phone}, Адрес: {self.address}")
     
     def __str__(self) -> str:
         return self.to_full_string()
+    
+    def __str__(self) -> str:
+        return self.to_full_string()
+
+    def __eq__(self, other) -> bool:
+        """Сравнение объектов"""
+        return isinstance(other, SupplierBase) and self.supplier_id == other.supplier_id
